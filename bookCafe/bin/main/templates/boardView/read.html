@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<title>[책 추천 게시판]</title>
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+	
+	* {
+		text-align : center;
+		box-sizing: border-box;
+		font-family: 'Gowun Dodum', sans-serif;
+	}
+
+	h1 {
+		text-align: center;
+ 		font-family: 'Black Han Sans', sans-serif;
+		font-size: 80px;
+		font-weight: 100;
+	}
+	
+	table {
+ 		border: 1px solid collapse;
+ 		margin-left:auto; 
+    	margin-right:auto;
+    	border-collapse: collapse;
+ 	}
+ 	
+ 	th, td {
+    	padding: 10px;
+     	border-bottom: 1px solid #CD5C5C;
+	}
+	
+	tr:hover { 
+		background-color: #F5F5F5; 
+	}
+	
+	li{
+		list-style : none;
+	}
+	
+	a {
+  		text-decoration: none;
+  		color: red;
+	}
+	
+	.w-btn-outline {
+   		position: relative;
+   		padding: 10px 20px;
+   		border-radius: 15px;
+   	 	font-family: "paybooc-Light", sans-serif;
+    	text-decoration: none;
+    	font-weight: 600;
+    	transition: 0.25s;
+    	font-size: 15px;
+	}
+	
+	.w-btn-yellow-outline {
+   		border: 3px solid #fce205;
+   		color: #6e6e6e;
+	}
+	
+	.w-btn-yellow-outline:hover {
+    	background-color: #fce205;
+    	color: #6e6e6e;
+	}
+	
+	.w-btn-outline:hover {
+    	letter-spacing: 2px;
+   		transform: scale(1.2);
+    	cursor: pointer;
+	}
+	
+	.w-btn-outline:active {
+    	transform: scale(1.5);
+	}
+	
+	.btn {
+  		position: relative;
+  		border: 0;
+  		padding: 10px 20px;
+  		display: inline-block;
+  		text-align: center;
+  		font-weight: 600;
+  		color: white;
+	}
+	.btn:active {
+  		top: 4px; 
+	}
+
+	.btn.yellow {
+		box-shadow:0px 4px 0px #630700;
+	}
+	
+	.btn.yellow:active {
+		box-shadow: 0 0 #ff4c4b; 
+		background-color: #630700;
+	}
+
+	.btn.yellow, .btn-two.yellow {
+		background-color: #a30e03;
+	}
+	
+	.recommendButton {
+		border-radius: 15px;
+		padding: 5px 10px;
+		background-color: #fce205;
+	}
+	
+	#nickname {
+		font-weight: bolder;
+	}
+	
+	#title {
+		background-color: #f0e6e8;
+	}
+	
+	#replyBox {
+		border-bottom: 1px solid #CD5C5C;
+	}
+
+</style>
+</head>
+<body>
+<header>
+	<h1>책 추천 글 읽기</h1>
+	<!-- 인증정보 확인해서 수정/삭제 버튼 표시할것 -->
+	<div sec:authorize = "hasRole('ADMIN')">
+		<input class="btn yellow mini" type = "button" value = "수정하기" th:onclick = "|javascript:location.href='update?boardNum=${board.boardNum}'|"> 
+		<input class="btn yellow mini" type = "button" value = "삭제하기" th:boardNum = "${board.boardNum}" th:onclick = "confirmDelete(this.getAttribute('boardNum'))">
+	</div>
+	
+	<div sec:authorize = "hasRole('USER')" th:if = "${#authentication.getPrincipal() != 'anonymousUser' and #authentication.getPrincipal().getUsername() == board.memberId}" >
+		<div align = "center">
+			<input class="btn yellow mini" type = "button" value = "수정하기" th:onclick = "|javascript:location.href='update?boardNum=${board.boardNum}'|"> 
+			<input class="btn yellow mini" type = "button" value = "삭제하기" th:boardNum = "${board.boardNum}" th:onclick = "confirmDelete(this.getAttribute('boardNum'))">
+		</div>
+	</div>
+	
+	<br>
+	
+</header>
+<section>
+	<table th:object = "${board}" style = "width: 800px; height: 500px;">
+		<tr>
+			<th id = "title" colspan = "3" th:text = "*{title}" style = "font-size: 24px;"></th>
+		</tr>
+		<tr>
+			<td th:text = "'&#128395;' + *{nickname}"></td>
+			<td th:text = "*{inputDate}"></td>
+			<td th:text = "*{viewCount}"></td>
+		</tr>
+		<tr>
+			<th>책 제목</th>
+			<td colspan = "2" th:text = "*{bookName}"></td>
+		</tr>
+		<tr>
+			<th>작가</th>
+			<td colspan = "2" th:text = "*{bookWriter}"></td>
+		</tr>
+		<tr>
+			<td colspan = "3" th:text = "*{content}"></td>
+		</tr>
+		<tr th:if = "*{originalFile} != null">
+			<th>첨부파일</th>
+			<td colspan = "2">
+				<!-- <a th:href = "@{|download?num=*{boardNum}|}" th:text = "*{originalFile}"></a><br> -->
+				<!-- 여러개 보낼때 밑에 있는 방법이 더 좋음 -->
+				<a th:href = "@{download(boardNum = *{boardNum})}" th:text = "*{originalFile}"></a><br>
+				<img th:src = "@{display(boardNum = *{boardNum})}" width = "300">				
+			</td>
+		</tr>
+	</table>
+	
+	<br>
+	
+	<!-- 추천버튼 구현중 버튼 누르면 recommendboard 테이블 추천갯수 늘어나고, recommend 테이블에 insert하고 창 새로고침-->
+	<!-- 이미 추천한 사람은 이미 추천하셨습니다 글씨가 떠있음, 추천버튼 눌러도 안됨 -->
+	<div th:if = "${memberRecommend != null}">
+		<p>⛔이미 추천하셨습니다⛔</p>
+	</div>
+	
+	<form action = "addRecommend" method = "post">
+		<input type = "submit" value = "&#128077; 추천!" class = "w-btn-outline w-btn-yellow-outline recommendButton">&nbsp;&nbsp;
+		<input type = "hidden" name = "boardNum" th:value = "${board.boardNum}">
+	</form>
+	
+	<b th:text = "${board.recommendCount}"></b>
+	
+	<hr style = "width:1600px; margin-left:auto; margin-right:auto">
+	
+	<ul id = "reList" th:if = "${#lists.size(replyList) != 0}">
+		<li th:each = "reply : ${replyList}" style = "width:1600px; margin-left:auto; margin-right:auto">
+			<div>
+				<div id = "replyBox">
+					<span style = "margin-right: 60px" th:text = "${reply.nickname}"></span>
+					<span th:text = "${reply.inputDate}"></span>
+					<span sec:authorize = "hasRole('ADMIN')">
+						<a th:href = "@{deleteReply(boardNum = ${reply.replyNum})}">✖</a>
+					</span>
+					<span sec:authorize = "hasRole('USER')" 
+							th:if = "${#authentication.getPrincipal() != 'anonymousUser' 
+							and #authentication.getPrincipal().getUsername() == reply.memberId}">
+						<a th:href = "@{deleteReply(boardNum = ${reply.replyNum})}">❌</a>			
+					</span>
+					<p th:text = "${reply.replyText}"></p>
+				</div>
+			</div>
+		</li>
+	</ul>
+	
+	<div id = "reList" th:if = "${#lists.size(replyList) == 0}">
+		<p>
+			<img src = "https://c.tenor.com/P0UV-mNUk2EAAAAC/%EB%AA%B0%EB%A3%A8.gif" style = "width:80px; height:80px;">
+			
+			<br>
+			
+			<b>등록된 댓글이 없습니다.</b>
+		</p>
+	</div>
+	
+	<form th:action = "@{read}" method = "GET" id = "pagingForm">
+		<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage - navi.pagePerGroup})|" th:text = "|◁◁|"></a>
+		<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage - 1})|" th:text = "|◀|"></a>
+		
+		<span th:each = "counter: ${#numbers.sequence(navi.startPageGroup, navi.endPageGroup)}">
+			<th:block th:if = "${counter == navi.currentPage}"><b></th:block>
+				<a th:text = "${counter}" th:href = "|javascript:pagingFormSubmit(${counter})|"></a>	
+			<th:block th:if = "${counter == navi.currentPage}"></b></th:block>
+		</span>
+	
+		<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage + 1})|" th:text = "|▶|"></a>
+		<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage + navi.pagePerGroup})|" th:text = "|▷▷|"></a>
+		<input type = "hidden" id = "page" name = "page">
+		<input type = "hidden" name = "boardNum" th:value = "${board.boardNum}">
+	</form>
+	
+	<form action = "writeReply" method = "post">
+		<textarea name = "replyText" style = "width: 500px; height: 100px; font-size: 18px;"></textarea>
+		<input type = "submit" value = "댓글달기" class="btn yellow mini">
+		<input type = "hidden" name = "boardNum" th:value = "${board.boardNum}">
+	</form>
+	
+	<br>
+	
+	<a style = "color: blue" th:href = "@{./list}">목록으로</a>
+	
+</section>
+<script>
+	function confirmDelete(num){
+		let answer = confirm('글을 정말 삭제하시겠습니까?\n‼삭제한 이후에는 되돌릴 수 없습니다‼');
+		
+		if(answer == true){
+			location.href = 'delete?boardNum=' + num;
+		}
+	}
+	function pagingFormSubmit(currentPage){
+		let form = document.getElementById("pagingForm");
+		let page = document.getElementById("page");
+		
+		page.value = currentPage;
+		
+		form.submit();
+	}
+</script>
+</body>
+</html>

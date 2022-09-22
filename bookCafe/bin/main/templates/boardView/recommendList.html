@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<title>만화책 추천 게시판</title>
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+
+	table, tr, th, td {
+		border : 2px solid;
+		border-collapse: collapse;
+		padding: 5px;
+	}
+	
+	div{
+		margin: 20px;
+	}
+
+	
+	* {
+		text-align : center;
+		font-family: 'Gowun Dodum', sans-serif;
+		font-weight: 600;
+	}
+	
+	
+	table {
+    	margin-left:auto; 
+    	margin-right:auto;
+    	line-height: 1.5;
+ 	 	border-top: 1px solid #ccc;
+ 	 	border-bottom: 1px solid #ccc;
+	}
+	
+	
+	table, tr, th, td {
+		border : 2px solid;
+		border-collapse: collapse;
+		text-align: left;
+		padding: 5px;
+		border-color : #fff;
+	}
+	
+	thead {
+  		border-right: 1px solid #ccc;
+  		border-left: 1px solid #ccc;
+  		background: #cab1e3;
+	}
+	
+	thead th {
+  		padding: 10px;
+  		font-weight: bold;
+  		vertical-align: top;
+  		color: #fff;
+	}
+	
+	tbody {
+  		width: 150px;
+ 		padding: 10px;
+ 		font-weight: bold;
+ 		vertical-align: top;
+ 		border-bottom: 1px solid #ccc;
+  		background: #faf5ff;
+	}
+	
+	td {
+ 		width: 350px;
+  		padding: 10px;
+ 		vertical-align: top;
+  		border-bottom: 1px solid #ccc;
+	}
+	
+	a {
+  		text-decoration: none;
+  		color : black;
+	}
+	
+	#title {
+		color :#9e2f6c;
+	}
+	
+	.returnMain {
+		border: 2px solid #fce205;
+		padding: 2px 10px;
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+	}
+	
+	div {
+		margin: 20px;
+	}
+	
+	.w-btn {
+    	position: relative;
+    	border: none;
+    	display: inline-block;
+    	padding: 15px 30px;
+    	border-radius: 15px;
+    	font-family: 'Gowun Dodum', sans-serif;
+   		box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    	text-decoration: none;
+    	font-weight: 600;
+    	transition: 0.25s;
+    	font-size: 15px;
+	}
+
+	.w-btn:hover {
+    	letter-spacing: 2px;
+    	transform: scale(1.2);
+    	cursor: pointer;
+	}
+
+	.w-btn:active {
+    	transform: scale(1.5);
+	}
+
+	.w-btn-gra2 {
+    	background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    	color: white;
+	}
+
+	.w-btn-gra-anim {
+    	background-size: 400% 400%;
+    	animation: gradient1 5s ease infinite;
+	}
+
+	@keyframes gradient1 {
+    	0% {
+        	background-position: 0% 50%;
+    	}
+    	50% {
+        	background-position: 100% 50%;
+    	}
+    	100% {
+        	background-position: 0% 50%;
+    	}
+	}
+	
+	h1 {
+		font-family: 'Black Han Sans', sans-serif;
+		font-size: 100px;
+		font-weight: 100;
+	}
+	
+	.inputText {
+ 	 	width: 500px;
+ 	 	height: 32px;
+  		font-size: 15px;
+  		border: 0;
+  		border-radius: 15px;
+  		outline: none;
+  		padding-left: 10px;
+  		background-color: rgb(233, 233, 233);
+	}
+	
+	#search {
+		border-radius: 15px; 
+		width:60px; 
+		height:32px;
+		background-color: #e6d0f7;
+		border: 0px;
+		font-weight: 600;
+	}
+</style>
+</head>
+<body>
+<header>
+	<h1>만화책 추천</h1>
+</header>
+<section>
+<div id = "container">
+	<div sec:authorize = "not isAuthenticated()">	
+		<input class = "w-btn w-btn-gra2 w-btn-gra-anim" type = "button" value = "login" onclick = "javascript:location.href='comicMember/login'">
+	</div>
+	<div sec:authorize = "isAuthenticated()">
+		<input class = "w-btn w-btn-gra2 w-btn-gra-anim" type = "button" value = "write" onclick = "javascript:location.href='write'">&nbsp;&nbsp;
+		<input class = "w-btn w-btn-gra2 w-btn-gra-anim" type = "button" value = "logout" onclick = "javascript:location.href='/logout'">
+	</div>
+</div>
+<h2 th:if = "${#lists.isEmpty(recommendList) == true}">
+	등록된 글이 없습니다.
+</h2>
+<p>
+	등록된 글은 <span th:text = "${navi.totalRecordsCount}"></span>개입니다.
+</p>
+<div style = "text-align: right;" sec:authorize = "isAuthenticated()">
+	<span sec:authentication = "name" style = "color:#6e58e8;"></span>님 환영합니다~!
+</div>
+<div style = "text-align: right;" sec:authorize = "not isAuthenticated()">
+	<span>GUEST님 환영합니다~!</span>
+</div>
+<table th:if = "${navi.totalRecordsCount != 0}">
+<thead>
+	<tr>
+		<th>도서명</th>
+		<th>작가</th>
+		<th>글제목</th>
+		<th>추천수</th>
+		<th>작성자</th>
+	</tr>
+</thead>
+<tbody>
+	<tr th:each = "recommend : ${recommendList}">
+		<td th:text = "${recommend.bookName}"></td>
+		<td th:text = "${recommend.bookWriter}"></td>
+		<td>
+			<a id = "title" th:href = "@{|read?boardNum=${recommend.BoardNum}|}">
+				<span th:text = "${recommend.title}"></span>
+			</a>
+		</td>
+		<td th:text = "${recommend.recommendCount}"></td>
+		<td th:text = "${recommend.nickname}"></td>
+	</tr>
+</tbody>
+</table><br>
+
+<input class = "w-btn w-btn-gra2 w-btn-gra-anim" type = "button" value = "책목록 보러가기" onclick = "javascript:location.href='/bookList'">&nbsp;&nbsp;
+
+<!-- 페이지 이동 -->
+<div id = "navigator" th:if = "${navi.totalRecordsCount != 0}">
+	<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage - navi.pagePerGroup})|" th:text = "|◁◁|"></a>
+	<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage - 1})|" th:text = "|◀|"></a>
+
+
+	<span th:each = "counter: ${#numbers.sequence(navi.startPageGroup, navi.endPageGroup)}">
+		
+		<th:block th:if = "${counter == navi.currentPage}"><b></th:block>
+			<a th:text = "${counter}" th:href = "|javascript:pagingFormSubmit(${counter})|"></a>	
+		<th:block th:if = "${counter == navi.currentPage}"></b></th:block>
+	</span>
+
+	<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage + 1})|" th:text = "|▶|"></a>
+	<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage + navi.pagePerGroup})|" th:text = "|▷▷|"></a>
+</div>
+
+<!-- 검색창 -->
+<div>
+	<form th:action = "@{recommendList}" method = "GET" id = "pagingForm">
+		<input type = "hidden" id = "page" name = "page">
+		<select class = "inputText" id = "type" name = "type" style = "width: 100px; height:32px;">
+			<option value = "title" th:selected = "${type} == 'title'">글제목</option>
+			<option value = "writer" th:selected = "${type} == 'writer'">작성자</option>
+			<option value = "bookName" th:selected = "${type} == 'bookName'">도서명</option>
+			<option value = "bookWriter" th:selected = "${type} == 'bookWriter'">작가</option>
+		</select>
+			<input class = "inputText" type = "text" name = "searchWord" th:value = "${searchWord}">
+			<input id = "search" type = "submit" value = "검색">
+	</form>
+</div>
+
+</section>
+<script>
+	function pagingFormSubmit(currentPage){
+		let form = document.getElementById("pagingForm");
+		let page = document.getElementById("page");
+		
+		page.value = currentPage;
+		
+		form.submit();
+	}
+</script>
+</body>
+</html>

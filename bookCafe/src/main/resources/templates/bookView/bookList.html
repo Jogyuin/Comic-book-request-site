@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<title>[ 만화책 목록 ]</title>
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+
+	
+	* {
+		text-align : center;
+		box-sizing: border-box;
+		font-family: 'Gowun Dodum', sans-serif;
+		font-weight: 600;
+	}
+	
+	h1 {
+		font-family: 'Black Han Sans', sans-serif;
+		font-weight: 100;
+	}
+	
+	
+	table {
+    	margin-left:auto; 
+    	margin-right:auto;
+    	line-height: 1.5;
+ 	 	border-top: 1px solid #ccc;
+ 	 	border-bottom: 1px solid #ccc;
+	}
+	
+	
+	table, tr, th, td {
+		border : 2px solid;
+		border-collapse: collapse;
+		text-align: left;
+		padding: 5px;
+		border-color : #fff;
+	}
+	
+	thead {
+  		border-right: 1px solid #ccc;
+  		border-left: 1px solid #ccc;
+  		background: #f5dc3b;
+	}
+	
+	thead th {
+  		padding: 10px;
+  		font-weight: bold;
+  		vertical-align: top;
+  		color: #fff;
+	}
+	
+	tbody {
+  		width: 150px;
+ 		padding: 10px;
+ 		font-weight: bold;
+ 		vertical-align: top;
+ 		border-bottom: 1px solid #ccc;
+  		background: #f7f5e6;
+	}
+	
+	td {
+ 		width: 350px;
+  		padding: 10px;
+ 		vertical-align: top;
+  		border-bottom: 1px solid #ccc;
+	}
+	
+	a {
+  		text-decoration: none;
+  		color: grey;
+	}
+	
+	.returnMain {
+		border: 2px solid #fce205;
+		padding: 2px 10px;
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+	}
+	
+	div {
+		margin: 20px;
+	}
+	
+	.w-btn-outline {
+   		position: relative;
+   		padding: 10px 20px;
+   		border-radius: 15px;
+   	 	font-family: 'Gowun Dodum', sans-serif;
+    	text-decoration: none;
+    	font-weight: 600;
+    	transition: 0.25s;
+    	font-size: 15px;
+	}
+	
+	.w-btn-yellow-outline {
+   		border: 3px solid #fce205;
+   		color: #6e6e6e;
+	}
+	
+	.w-btn-yellow-outline:hover {
+    	background-color: #fce205;
+    	color: #6e6e6e;
+	}
+	
+	.w-btn-outline:hover {
+    	letter-spacing: 2px;
+   		transform: scale(1.2);
+    	cursor: pointer;
+	}
+	
+	.w-btn-outline:active {
+    	transform: scale(1.5);
+	}
+	
+	.btn {
+  		position: relative;
+  		border: 0;
+  		padding: 10px 20px;
+  		display: inline-block;
+  		text-align: center;
+  		font-weight: 600;
+  		color: white;
+	}
+	.btn:active {
+  		top: 4px; 
+	}
+
+	.btn.yellow {
+		box-shadow:0px 4px 0px #D1B757;
+	}
+	
+	.btn.yellow:active {
+		box-shadow: 0 0 #ff4c4b; 
+		background-color: #D6BB59;
+	}
+
+	.btn.yellow, .btn-two.yellow {
+		background-color: #f0d264;
+	}
+	
+	.inputText {
+ 	 	width: 500px;
+ 	 	height: 32px;
+  		font-size: 15px;
+  		border: 0;
+  		border-radius: 15px;
+  		outline: none;
+  		padding-left: 10px;
+  		background-color: rgb(233, 233, 233);
+	}
+	
+	#search {
+		border-radius: 15px; 
+		width:60px; 
+		height:32px;
+		background-color: #ffedab;
+		border: 0px;
+		font-weight: 600;
+	}
+
+	
+</style>
+</head>
+<body>
+<header>
+	<h1 style = "font-size:100px">&#128218; 만화책 목록 &#128218;</h1>
+</header>
+<!-- 검색창 -->
+<section>
+	<h2 th:if = "${#lists.isEmpty(bookList) == true}">
+		책이 존재하지 않습니다.
+	</h2>
+	<div sec:authorize = "not isAuthenticated()">	
+		<input class = "w-btn-outline w-btn-yellow-outline" type = "button" value = "login" onclick = "javascript:location.href='comicMember/login'">
+	</div>
+	<div sec:authorize = "isAuthenticated()">
+		<input class = "w-btn-outline w-btn-yellow-outline" type = "button" value = "logout" onclick = "javascript:location.href='/logout'">
+		<input class = "w-btn-outline w-btn-yellow-outline" type = "button" value = "회원탈퇴" onclick = "javascript:location.href='comicMember/delete'">
+		<input class = "w-btn-outline w-btn-yellow-outline" type = "button" value = "회원수정" onclick = "javascript:location.href='comicMember/updateInfo'">
+	</div>
+	<p>
+		총 <span th:text = "${navi.totalRecordsCount}"></span>권이 등록되어 있습니다.
+	</p>
+	<div style = "text-align: right;" sec:authorize = "isAuthenticated()">
+		<span sec:authentication = "name" style = "color:#6e58e8;"></span>님 환영합니다~!
+	</div>
+	<div style = "text-align: right;" sec:authorize = "not isAuthenticated()">
+		<span>GUEST님 환영합니다~!</span>
+	</div>
+	<div>
+		<table th:if = "${navi.totalRecordsCount != 0}">
+			<thead>
+				<tr>
+					<th>도서명</th>
+					<th>작가</th>
+					<th>출판사</th>
+					<th>장르</th>
+					<th>책위치</th>
+					<th sec:authorize = "hasRole('ADMIN')">관리하기</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each = "book : ${bookList}">
+					<td th:text = "${book.bookName}"></td>
+					<td th:text = "${book.bookWriter}"></td>
+					<td th:text = "${book.publisher}"></td>
+					<td th:text = "${book.genre}"></td>
+					<td th:text = "${book.bookLocation}"></td>
+					<!-- 관리자일때 삭제/수정하기 보이기 -->
+					<td sec:authorize = "hasRole('ADMIN')">
+						<input class="btn yellow mini" type = "button" value = "수정하기" th:onclick = "|javascript:location.href='updateBook?num=${book.bookNum}'|">
+						<input class="btn yellow mini" type = "button" value = "삭제하기" th:bookNum = "${book.bookNum}" th:onclick = "confirmDelete(this.getAttribute('bookNum'))">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<input class = "w-btn-outline w-btn-yellow-outline" type = "button" value = "입고신청 게시판" onclick = "javascript:location.href='/board/list'">&nbsp;&nbsp;
+	
+	<!-- 관리자일 때만 추가하기 보이기 -->
+	<input class = "w-btn-outline w-btn-yellow-outline" type = "button" value = "책 추가하기" sec:authorize = "hasRole('ADMIN')" onclick = "javascript:location.href='/insertBook'">
+	
+	<div id = "navigator" th:if = "${navi.totalRecordsCount != 0}">
+		<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage - navi.pagePerGroup})|" th:text = "|◁◁|"></a>
+		<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage - 1})|" th:text = "|◀|"></a>
+		
+		<span th:each = "counter: ${#numbers.sequence(navi.startPageGroup, navi.endPageGroup)}">
+			<th:block th:if = "${counter == navi.currentPage}"><b></th:block>
+				<a th:text = "${counter}" th:href = "|javascript:pagingFormSubmit(${counter})|"></a>
+			<th:block th:if = "${counter == navi.currentPage}"></b></th:block>
+		</span>
+		
+		<!-- 다음 페이지 그룹으로 이동 -->
+		<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage + 1})|" th:text = "|▶|"></a>
+		<a th:href = "|javascript:pagingFormSubmit(${navi.currentPage + navi.pagePerGroup})|" th:text = "|▷▷|"></a>
+	</div>
+	<div>
+		<form th:action = "@{bookList}" method = "GET" id = "pagingForm">
+			<input type = "hidden" id = "page" name = "page">
+			<select class = "inputText" id = "type" name = "type" style = "width: 100px; height:32px;">
+				<option value = "bookName" th:selected = "${type} == 'bookName'">도서명</option>
+				<option value = "bookWriter" th:selected = "${type} == 'bookWriter'">작가</option>
+				<option value = "genre" th:selected = "${type} == 'genre'">장르</option>
+				<option value = "publisher" th:selected = "${type} == 'publisher'">출판사</option>
+			</select>
+				<input class = "inputText" type = "text" name = "searchWord" th:value = "${searchWord}">
+				<input id = "search" type = "submit" value = "검색"><br><br>
+		</form>
+	</div>
+</section>
+<script>
+	function pagingFormSubmit(currentPage){
+		let form = document.getElementById("pagingForm");
+		let page = document.getElementById("page");
+		
+		page.value = currentPage;
+		
+		form.submit();	//검색창의 내용이 전달됨
+	}
+	
+	function confirmDelete(num) {
+		let answer = confirm('정말로 삭제하시겠습니까?\n삭제한 이후에는 복구할 수 없습니다.');
+		
+		if(answer == true){
+			location.href = 'deleteBook?num=' + num;			
+		}
+	}
+</script>
+</body>
+</html>

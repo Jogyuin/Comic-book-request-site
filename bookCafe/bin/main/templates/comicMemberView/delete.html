@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<style>
+body{
+           width:100%;
+           margin: 0 auto;
+           max-width: 1350px;
+           font-family: 'Oswald', sans-serif;
+		   background-image: url("https://10mag.com/wp-content/uploads/2010/10/english-books-in-korea-1155x770.jpg");
+       }
+
+.deleteform {
+	position: absolute;
+	width: 380px;
+	height: 300px;
+	padding: 30px, 20px;
+	background-color: #ebebeb;
+	text-align: center;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 15px;
+}
+.idForm {
+	border-bottom: 2px solid #adadad;
+	margin: 30px;
+	padding: 10px 10px;
+}
+
+.passForm {
+	border-bottom: 2px solid #adadad;
+	margin: 30px;
+	padding: 10px 10px;
+}
+
+.deleteform .id {
+	width: 100%;
+	border: none;
+	outline: none;
+	color: #636e72;
+	font-size: 16px;
+	height: 25px;
+	background: none;
+}
+
+.pw {
+	width: 100%;
+	border: none;
+	outline: none;
+	color: #636e72;
+	font-size: 16px;
+	height: 25px;
+	background: none;
+}
+
+.btn {
+	position: relative;
+	left: 40%;
+	transform: translateX(-50%);
+	margin-bottom: 10px;
+	width: 80%;
+	height: 40px;
+	background: linear-gradient(125deg, #81ecec, #6c5ce7, #81ecec);
+	background-position: left;
+	background-size: 200%;
+	color: white;
+	font-weight: bold;
+	border: none;
+	cursor: pointer;
+	transition: 0.4s;
+	display: inline;
+}
+
+.btn:hover {
+	background-position: right;
+}
+</style>
+<meta charset="UTF-8">
+<title>[회원탈퇴]</title>
+</head>
+<body>
+<div class = "deleteform" >
+	<form th:object = "${member}" action = "delete" method = "POST" onsubmit = "return deleteMember();">
+		<div class="idForm">
+			<span th:text = "*{memberId}" class="id"></span>
+		</div>
+		<div class="passForm">
+			<input type = "password" id = "memberPw" class = "pw" name = "memberPw" placeholder = "memberPassword"><br>
+		</div>
+     	<input type = "submit" class = "btn" value = "삭제하기">
+		<input type = "reset" class = "btn" value = "취소" onclick ="location.href='/'">
+	</form>
+</div>
+<script>
+function chechValues(){
+	let memberPw = document.getElementById('memberPw');
+	let memberName = document.getElementById('memberName');
+	//비밀번호 체크
+		if (memberPw.value.trim().length == 0) {
+			alert('비밀번호는 필수 항목입니다.');
+			memberPw.focus();
+			return false;
+		} else if (memberPw.value.trim().length < 7
+				|| memberPw.value.trim().length > 14) {
+			alert('비밀번호는 7~14자 사이로 입력해주세요');
+			memberPw.focus();
+			return false;
+		}else if(memberPw.value.search(/[0-9]/g) < 0 || memberPw.value.search(/[a-z]/ig) < 0){
+			alert('비밀번호는 숫자와 영문자를 같이 사용하셔야 합니다.');
+			memberPw.focus();
+			return false;
+	}  
+}
+
+function deleteMember() {
+	let answer = confirm("정말로 삭제하시겠습니까?\n삭제한 이후에는 복구할 수 없습니다.");
+	if(answer == true){
+		return chechValues();
+	}else {
+		return false;
+	}
+}
+</script>	
+</body>
+</html>

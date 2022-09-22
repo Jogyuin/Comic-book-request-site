@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<!-- 스타일 조정중 -->
+<style>
+* {
+  margin: 0px;
+  padding: 0px;
+  text-decoration: none;
+  font-family:sans-serif;
+}
+
+body{
+	width:100%;
+	margin: 0 auto;
+	max-width: 1350px;
+	font-family: 'Oswald', sans-serif;
+	background-image: url("https://10mag.com/wp-content/uploads/2010/10/english-books-in-korea-1155x770.jpg");
+}
+       
+section{
+  position:absolute;
+  width:400px;
+  height:600x;
+  padding: 40px, 20px;
+  background-color:#FFFFFF;
+  top:50%;
+  left:50%;
+  transform: translate(-50%,-50%);
+  border-radius: 15px;
+}
+
+.textForm {
+  border-bottom: 2px solid #adadad;
+  margin: 30px;
+  padding: 10px 10px;
+}
+
+.id, .pw, .name, .nickname, .cellphoneNo, .age{
+  width: 100%;
+  border:none;
+  outline:none;
+  color: #636e72;
+  font-size:16px;
+  height:25px;
+  background: none;
+}
+
+.textForm .age{
+  width: 50px;
+}
+
+#idcheck {
+  position: relative;
+}
+
+.text-center{
+  text-align: center;
+}
+
+.button{
+  text-align: center;
+}
+
+.btn {
+  position:relative;
+  left:40%;
+  transform: translateX(-50%);
+  margin-bottom: 5px;
+  width:80%;
+  height:40px;
+  background: linear-gradient(125deg,#81ecec,#6c5ce7,#81ecec);
+  background-position: left;
+  background-size: 200%;
+  color:white;
+  font-weight: bold;
+  border:none;
+  cursor:pointer;
+  transition: 0.4s;
+}
+
+.btn:hover {
+  background-position: right;
+}
+
+</style>
+
+<meta charset="UTF-8">
+<title>[정보수정]</title>
+</head>
+<body>
+<section th:object = "${member}">
+    <p class="text-center"><br>
+      <span style="color:red;">&nbsp;*아이디를 제외한 모든 항목을 변경 가능합니다.</span>
+    </p>
+	<form action = "update" method = "POST" onsubmit = "return confirmChange();">
+		<div class="textForm" id = "idcheck">
+     	 <span th:text = "*{memberId}"></span>
+		</div>
+		<div class ="checkSpacebar" onkeydown = "return checkSpacebar();">
+		<div class="textForm">
+        	<input type="password" class="pw" id = "memberPw" name = "memberPw" placeholder="비밀번호 입력">
+		</div>
+      
+		<div class="textForm">
+			<input type="password" class="pw" id="memberPwCheck" placeholder="비밀번호 확인">
+		</div>
+		<div class="textForm">
+			<input type="text" id="memberName" name="memberName" class = "name" placeholder= "이름 입력" th:value = "*{memberName}">
+		</div>
+   
+		<div class="textForm">
+        	<input name="nickname" id="nickname" type="text" class="nickname" placeholder="닉네임" th:value = "*{nickname}">
+		</div>
+		<div class="textForm">
+			<input type="number" class= "age" id="age" name="age" value= "0" min = "0" maxLength="3" oninput="maxLengthCheck(this);">세
+		</div>
+		<div class="textForm">
+        	<input type="tel" class="cellphoneNo" name="phone" placeholder="전화번호" maxLength="14" oninput="maxLengthCheck(this);">
+	 	</div>
+		<div class = "button">
+		<!-- 제출버튼/ 취소버튼 -->
+			<input type = "submit" class = "btn" value = "UPDATE">
+			<input type = "reset" class = "btn" value = "BACK" onclick=history.back()>
+		</div>
+	</form>
+</section> 
+<script>
+	function maxLengthCheck(object){
+		    if (object.value.length > object.maxLength){
+		        object.value = object.value.slice(0, object.maxLength);
+		    }    
+		}
+		
+	function checkSpacebar() {
+		let keyCode = event.keyCode;
+		if (keyCode == 32) {
+			alert('스페이스바는 사용하실수 없습니다');
+			return false;
+		}
+	}
+
+	function chechValues(){
+		let memberPw = document.getElementById('memberPw');
+		let memberPwCheck = document.getElementById('memberPwCheck');
+		let memberName = document.getElementById('memberName');
+		
+		//비밀번호 체크
+		if (memberPw.value.trim().length == 0) {
+			alert('비밀번호는 필수 항목입니다.');
+			memberPw.focus();
+			return false;
+		} else if (memberPw.value.trim().length < 7
+				|| memberPw.value.trim().length > 14) {
+			alert('비밀번호는 7~14자 사이로 입력해주세요');
+			memberPw.focus();
+			return false;
+		}else if(memberPw.value.search(/[0-9]/g) < 0 || memberPw.value.search(/[a-z]/ig) < 0){
+			alert('비밀번호는 숫자와 영문자를 같이 사용하셔야 합니다.');
+			memberPw.focus();
+			return false;
+		} else if (memberPw.value.trim() != memberPwCheck.value.trim()) {
+			alert('비밀번호가 서로 다릅니다');
+			memberPwCheck.focus();
+			return false;
+		}
+
+		//이름체크
+		if (memberName.value.trim().length == 0) {
+			alert('이름은 필수항목입니다.');
+			memberName.focus();
+			return false;
+		} else if (memberName.value.trim().length < 2
+				|| memberName.value.trim().length > 6) {
+			alert('이름은 2~6자리로 입력해주세요.');
+			memberName.focus();
+			return false;
+		}
+		
+		/* 이름에 숫자 못넣게 하기 */
+		let nameValue = memberName.value;
+		for (let i = 0; i < nameValue.length; i++) {
+			if (!isNaN(nameValue.charAt(i))) {
+				let message = nameValue.charAt(i) + '은 사용할수 없습니다.';
+				alert(message);
+				memberName.focus();
+				return false;
+			}
+		}  
+	}
+	
+	function confirmChange() {
+		let answer = confirm("확인을 누르시면 입력한 정보로 수정됩니다");
+		if(answer == true){
+			return chechValues();
+		}else {
+			return false;
+		}
+	}
+</script>
+</body>
+</html>

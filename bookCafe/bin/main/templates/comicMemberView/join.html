@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>[회원가입]</title>
+<style>
+* {
+	margin: 0px;
+	padding: 0px;
+	text-decoration: none;
+	font-family: sans-serif;
+}
+
+body {
+	width: 100%;
+	margin: 0 auto;
+	max-width: 1350px;
+	font-family: 'Oswald', sans-serif;
+	background-image:
+		url("https://10mag.com/wp-content/uploads/2010/10/english-books-in-korea-1155x770.jpg");
+}
+
+section {
+	position: absolute;
+	width: 400px;
+	height: 600x;
+	padding: 40px, 20px;
+	background-color: #FFFFFF;
+	text-align: center;
+	top: 60%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 15px;
+}
+
+.joinForm h2 {
+	text-align: center;
+	margin: 30px;
+}
+
+.textForm {
+	border-bottom: 2px solid #adadad;
+	margin: 30px;
+	padding: 10px 10px;
+}
+
+.id, .pw, .name, .nickname, .cellphoneNo, .age {
+	width: 100%;
+	border: none;
+	outline: none;
+	color: #636e72;
+	font-size: 16px;
+	height: 25px;
+	background: none;
+}
+
+.btn {
+	position: relative;
+	left: 40%;
+	transform: translateX(-50%);
+	margin-bottom: 40px;
+	width: 80%;
+	height: 40px;
+	background: linear-gradient(125deg, #81ecec, #6c5ce7, #81ecec);
+	background-position: left;
+	background-size: 200%;
+	color: white;
+	font-weight: bold;
+	border: none;
+	cursor: pointer;
+	transition: 0.4s;
+	display: inline;
+}
+
+.btn:hover {
+	background-position: right;
+}
+
+.info#idcheck {
+	position: relative;
+}
+
+.button {
+	position: absolute;
+	width: 80px;
+	height: 37px;
+	right: 5%;
+	margin: auto 0;
+	border-radius: 3px;
+	background: #6c5ce7;
+	color: white;
+	font-weight: bold;
+	border: none;
+	cursor: pointer;
+	transition: 0.4s;
+	display: inline;
+}
+
+.error_next_box {
+    margin-top: 9px;
+    font-size: 12px;
+    color: red;    
+    display: none;
+}
+</style>
+</head>
+<body>
+<section>
+	<form action="join" method="POST" onsubmit="return chechValues();">
+		<div class="textForm" id="idcheck">
+			<input type="text" class="id" id="memberId" name="memberId"
+				placeholder="중복확인을 해주세요" readonly> <input type="button"
+				class="button" value="ID 중복확인" onclick="openIdForm();">
+		</div>
+		<div class="checkSpacebar" onkeydown="return checkSpacebar();">
+			<div class="textForm">
+				<input type="password" class="pw" id="memberPw" name="memberPw"
+					placeholder="비밀번호 입력">
+			</div>
+
+			<div class="textForm">
+				<input type="password" class="pw" id="memberPwCheck"
+					placeholder="비밀번호 확인">
+			</div>
+			<div class="textForm">
+				<input type="text" id="memberName" name="memberName" class="name"
+					placeholder="이름 입력">
+			</div>
+
+			<div class="textForm">
+				<input name="nickname" id="nickname" type="text" class="nickname"
+					placeholder="닉네임">
+			</div>
+			<div class="textForm">
+				<input type="number" class="age" id="age" name="age"
+					placeholder="나이" value="0" min="0" maxlength="3"
+					oninput="numberMaxLength(this);">
+			</div>
+			<div class="textForm">
+				<input type="tel" class="cellphoneNo" name="phone"
+					placeholder="전화번호" maxlength="14" oninput="numberMaxLength(this);">
+			</div>
+		</div>
+		<input type="submit" class="btn" value="J O I N">
+	</form>
+</section>
+
+<script>
+	//숫자 자릿수 제한
+	function numberMaxLength(e) {
+		if (e.value.length > e.maxLength) {
+			e.value = e.value.slice(0, e.maxLength);
+		}
+	}
+
+	function checkSpacebar() {
+		let keyCode = event.keyCode;
+		if (keyCode == 32) {
+			alert('스페이스바는 사용하실수 없습니다');
+			return false;
+		}
+	}
+	
+	//입력된 값 검사
+	let memberId = document.getElementById('memberId');
+	let memberPw = document.getElementById('memberPw');
+	let memberPwCheck = document.getElementById('memberPwCheck');
+	let memberName = document.getElementById('memberName');
+	let age = document.getElementById('age');
+
+	function chechValues() {
+		if (memberId.value.trim().length == 0) {
+			alert('아이디는 필수 항목입니다.');
+			memberId.focus();
+			return false;
+		} else if (memberId.value.trim().length < 3
+				|| memberId.value.trim().length > 12) {
+			alert('아이디는 3~12자로 입력해주세요');
+			memberId.focus();
+			return false;
+		}
+
+		if (memberPw.value.trim().length == 0) {
+			alert('비밀번호는 필수 항목입니다.');
+			memberPw.focus();
+			return false;
+		} else if (memberPw.value.trim().length < 7
+				|| memberPw.value.trim().length > 14) {
+			alert('비밀번호는 7~14자 사이로 입력해주세요');
+			memberPw.focus();
+			return false;
+		} else if (memberPw.value.search(/[0-9]/g) < 0
+				|| memberPw.value.search(/[a-z]/ig) < 0) {
+			alert('비밀번호는 숫자와 영문자를 같이 사용하셔야 합니다.');
+			return false;
+		} else if (memberPw.value.trim() != memberPwCheck.value.trim()) {
+			alert('비밀번호가 서로 다릅니다');
+			memberPwCheck.focus();
+			return false;
+		}
+
+		//이름체크
+		if (memberName.value.trim().length == 0) {
+			alert('이름은 필수항목입니다.');
+			memberName.focus();
+			return false;
+		} else if (memberName.value.trim().length < 2
+				|| memberName.value.trim().length > 6) {
+			alert('이름은 2~6자리로 입력해주세요.');
+			memberName.focus();
+			return false;
+		}
+		
+		/* 이름에 숫자 못넣게 하기 */
+		let nameValue = memberName.value;
+		for (let i = 0; i < nameValue.length; i++) {
+			if (!isNaN(nameValue.charAt(i))) {
+				let message = nameValue.charAt(i) + '은 사용할수 없습니다.';
+				alert(message);
+				memberName.focus();
+				return false;
+			}
+		}
+	}
+	
+	function openIdForm() {
+		window.open('idCheck', 'win',
+				'left=600, top = 300,width=400, height=300, menubar=no'); //새창열기
+	}
+	
+</script>
+</body>
+</html>

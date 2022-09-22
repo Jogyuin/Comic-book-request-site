@@ -1,0 +1,162 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.abc.dao.BoardDAO">
+<!-- 추천글 쓰기 -->
+<insert id = "insertBoard" parameterType = "Board">
+INSERT INTO RECOMMENDBOARD (
+	BOARDNUM,
+	MEMBERID, 
+	NICKNAME,
+	BOOKNAME,
+	BOOKWRITER,
+	TITLE, 
+	CONTENT
+	<!-- 파일 정보가 있을때 -->
+	<if test = "originalFile != null and savedFile != null">
+		,ORIGINALFILE
+		,SAVEDFILE
+	</if>	
+	)
+	VALUES
+	(
+		RECOMMENDBOARDNUM_SEQ.NEXTVAL,
+		#{memberId},
+		<!-- nickname에 관한 서브쿼리 작성 -->
+		(
+			SELECT NICKNAME FROM COMICMEMBER
+			WHERE MEMBERID = #{memberId}
+		),
+		#{bookName},
+		#{bookWriter},
+		#{title},
+		#{content}
+		<!-- 파일 정보 유무 확인 -->
+		<if test = "originalFile != null and savedFile != null">
+			,#{originalFile}
+			,#{savedFile}
+		</if>
+	)
+</insert>
+
+<!-- 추천글 전체리스트 보기 -->
+<select id = "selectAllBoard" resultType = "Board" parameterType = "map">
+	SELECT 
+		BOARDNUM,
+		NICKNAME,
+		BOOKNAME,
+		BOOKWRITER,
+		TITLE,
+		RECOMMENDCOUNT
+	FROM RECOMMENDBOARD
+	<if test = "type != null and searchWord != null">
+		<where>
+			<!-- 글제목으로 검색 -->
+			<if test = 'type eq "title"'>
+				TITLE LIKE '%'||#{searchWord}||'%'
+			</if>
+		
+			<!-- 작성자로 검색 -->
+			<if test = 'type eq "writer"'>
+				NICKNAME LIKE '%'||#{searchWord}||'%'
+			</if>
+				
+			<!-- 책이름으로 검색 -->
+			<if test = 'type eq "bookName"'>
+				BOOKNAME LIKE '%'||#{searchWord}||'%'
+			</if>
+				
+			<!-- 작가로 검색 -->
+			<if test = 'type eq "bookWriter"'>
+				BOOKWRITER LIKE '%'||#{searchWord}||'%'
+			</if>
+		</where>
+	</if>
+		ORDER BY BOARDNUM DESC
+	</select>
+
+<!-- 추천글 갯수 세기 -->
+<select id = "countBoard" parameterType = "map" resultType = "int">
+	SELECT
+		count(*)
+	FROM RECOMMENDBOARD
+	<if test = "type != null and searchWord != null">
+		<where>
+			<if test = 'type eq "title"'>
+				TITLE LIKE '%'||#{searchWord}||'%'
+			</if>
+		
+			<if test = 'type eq "writer"'>
+				NICKNAME LIKE '%'||#{searchWord}||'%'
+			</if>
+			
+			<if test = 'type eq "bookName"'>
+				BOOKNAME LIKE '%'||#{searchWord}||'%'
+			</if>
+			
+			<if test = 'type eq "bookWriter"'>
+				BOOKWRITER LIKE '%'||#{searchWord}||'%'
+			</if>
+		</where>
+	</if>
+	ORDER BY BOARDNUM DESC
+</select>
+	
+<!-- 글읽기 -->
+<select id = "selectOneBoard" parameterType = "int" resultType = "Board">
+	SELECT * FROM RECOMMENDBOARD
+	WHERE BOARDNUM = #{boardNum}
+</select>
+
+<!-- 글 수정하기 -->
+<update id = "updateBoard" parameterType = "Board">
+	UPDATE RECOMMENDBOARD
+	SET TITLE = #{title}, CONTENT = #{content}, BOOKNAME = #{bookName}, BOOKWRITER = #{bookWriter}
+	<if test = "originalFile != null and savedFile != null">
+		,ORIGINALFILE = #{originalFile}
+		,SAVEDFILE = #{savedFile}
+	</if>
+	WHERE BOARDNUM = #{boardNum}
+</update>
+
+<!-- 글 삭제하기 -->
+<delete id = "deleteBoard" parameterType = "int">
+	DELETE FROM RECOMMENDBOARD
+	WHERE BOARDNUM = #{boardNum}
+</delete>
+
+<!-- 게시글 하나에 대해서 조회수 올리기 -->
+<update id = "updateViewCount" parameterType = "int">
+	UPDATE RECOMMENDBOARD
+	SET VIEWCOUNT = VIEWCOUNT + 1
+	WHERE BOARDNUM = #{boardNum}
+</update>
+
+<!-- 추천 행 삽입 -->
+<insert id = "insertRecommend" parameterType = "Recommend">
+	INSERT INTO RECOMMEND (
+		RECOMMENDNUM,
+		MEMBERID,
+		BOARDNUM
+	)
+	VALUES(
+		RECOMMENDNUM_SEQ.NEXTVAL,
+		#{memberId},
+		#{boardNum}
+	)
+</insert>
+
+<!-- 추천 게시물에서 추천한 사람 찾기 -->
+<select id = "selectRecommend" parameterType = "Recommend" resultType = "Recommend">
+	SELECT * FROM RECOMMEND
+	WHERE MEMBERID = #{memberId} AND BOARDNUM = #{boardNum}
+</select>
+
+<!-- 추천수 올리기 -->
+<update id = "updateRecommendCount" parameterType = "int">
+	UPDATE RECOMMENDBOARD
+	SET RECOMMENDCOUNT = RECOMMENDCOUNT + 1
+	WHERE BOARDNUM = #{boardNum}
+</update>
+</mapper>

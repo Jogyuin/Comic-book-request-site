@@ -1,0 +1,100 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.abc.dao.BookDAO">
+<!-- 책 불러오기 (조건에 따라서 검색가능)-->
+<select id = "selectAllBook" parameterType = "map" resultType = "Book">
+	SELECT * FROM BOOK
+	<if test = "type != null and searchWord != null">
+		<where>
+			<!-- 도서명으로 검색 -->
+			<if test = 'type eq "bookName"'>
+				BOOKNAME LIKE '%'||#{searchWord}||'%'
+			</if>
+		
+			<!-- 작가로 검색 -->
+			<if test = 'type eq "bookWriter"'>
+				BOOKWRITER LIKE '%'||#{searchWord}||'%'
+			</if>
+		
+			<!-- 장르로 검색 -->
+			 <if test = 'type eq "genre"'>
+				GENRE LIKE '%'||#{searchWord}||'%'
+			</if>
+		
+			<!-- 출판사로 검색 -->
+			<if test = 'type eq "publisher"'>
+				PUBLISHER LIKE '%'||#{searchWord}||'%'
+			</if>
+		</where>
+	</if> 
+	ORDER BY BOOKNUM DESC
+</select>
+
+<select id = "countBook" parameterType = "map" resultType = "int">	
+	SELECT count(*)
+	FROM BOOK
+	<if test = "type != null and searchWord != null">
+		<where>
+			<if test = 'type eq "bookName"'>
+				BOOKNAME LIKE '%'||#{searchWord}||'%'
+			</if>
+			<if test = 'type eq "bookWriter"'>
+				BOOKWRITER LIKE '%'||#{searchWord}||'%'
+			</if>
+			<if test = 'type eq "genre"'>
+				GENRE LIKE '%'||#{searchWord}||'%'
+			</if>
+			<if test = 'type eq "publisher"'>
+				PUBLISHER LIKE '%'||#{searchWord}||'%'
+			</if>
+		</where>
+	</if>
+	ORDER BY BOOKNUM DESC
+</select>
+
+<!-- 책추가하기 -->
+<insert id = "insertBook" parameterType = "Book">
+	INSERT INTO BOOK (
+		BOOKNUM,
+		BOOKNAME,
+		BOOKWRITER,
+		GENRE,
+		BOOKLOCATION,
+		PUBLISHER
+	)
+	VALUES (
+		BOOK_SEQ.NEXTVAL,
+		#{bookName},
+		#{bookWriter},
+		#{genre},
+		#{bookLocation},
+		#{publisher}
+	)
+</insert>
+
+<!-- 책하나만 선택 -->
+<select id = "selectOneBook" parameterType = "int" resultType = "Book">
+	SELECT * FROM BOOK
+	WHERE BOOKNUM = #{bookNum}
+</select>
+
+<!-- 책수정하기 -->
+<update id = "updateBook" parameterType = "Book">
+	UPDATE BOOK
+	SET BOOKNAME = #{bookName},
+		BOOKWRITER = #{bookWriter},
+		PUBLISHER = #{publisher},
+		GENRE = #{genre},
+		BOOKLOCATION = #{bookLocation}
+	WHERE BOOKNUM = #{bookNum}
+</update>
+
+<!-- 책삭제하기 -->
+<delete id = "deleteBook" parameterType = "int">
+	DELETE FROM BOOK
+	WHERE BOOKNUM = #{bookNum}
+</delete>
+
+</mapper>

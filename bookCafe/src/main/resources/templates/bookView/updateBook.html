@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<title>[글수정하기]</title>
+
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap');
+ 	
+ 	h1 {
+ 		text-align: center;
+ 		font-family: 'Black Han Sans', sans-serif;
+		font-size: 80px;
+		font-weight: 100;
+ 	}
+ 	
+ 	.inputText {
+ 	 	width: 500px;
+ 	 	height: 32px;
+  		font-size: 15px;
+  		border: 0;
+  		border-radius: 15px;
+  		outline: none;
+  		padding-left: 10px;
+  		background-color: rgb(233, 233, 233);
+	}
+ 	
+ 	
+	table {
+    	margin-left:auto; 
+    	margin-right:auto;
+    	line-height: 1.5;
+ 	 	border-top: 1px solid #ccc;
+ 	 	border-bottom: 1px solid #ccc;
+ 	 	background-color: white;
+	}
+	
+	
+	table, tr, th, td {
+		border : 2px solid;
+		border-collapse: collapse;
+		text-align: left;
+		padding: 5px;
+		border-color : #fff;
+	}
+	
+	
+	thead th {
+  		padding: 10px;
+  		font-weight: bold;
+  		vertical-align: top;
+  		color: #fff;
+	}
+
+	a {
+  		text-decoration: none;
+  		color: grey;
+	}
+	
+	div {
+		margin: 20px;
+	}
+	
+		.returnMain {
+		border: 2px solid #fce205;
+		padding: 2px 10px;
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+	}
+	
+	div {
+		margin: 20px;
+	}
+	
+	.w-btn-outline {
+   		position: relative;
+   		padding: 10px 20px;
+   		border-radius: 15px;
+   	 	font-family: "paybooc-Light", sans-serif;
+    	text-decoration: none;
+    	font-weight: 600;
+    	transition: 0.25s;
+    	font-size: 15px;
+	}
+	
+	.w-btn-yellow-outline {
+   		border: 3px solid #fce205;
+   		color: #6e6e6e;
+	}
+	
+	.w-btn-yellow-outline:hover {
+    	background-color: #fce205;
+    	color: #6e6e6e;
+	}
+	
+	.w-btn-outline:hover {
+    	letter-spacing: 2px;
+   		transform: scale(1.2);
+    	cursor: pointer;
+	}
+	
+	.w-btn-outline:active {
+    	transform: scale(1.5);
+	}
+	
+	.btn {
+  		position: relative;
+  		border: 0;
+  		padding: 10px 20px;
+  		display: inline-block;
+  		text-align: center;
+  		font-weight: 500;
+  		color: white;
+	}
+	.btn:active {
+  		top: 4px; 
+	}
+
+	.btn.yellow {
+		box-shadow:0px 4px 0px #D1B757;
+	}
+	
+	.btn.yellow:active {
+		box-shadow: 0 0 #ff4c4b; background-color: #D6BB59;
+	}
+
+	.btn.yellow, .btn-two.yellow {
+		background-color: #f0d264;
+	}
+
+
+</style>
+</head>
+<body>
+<header>
+	<h1>글수정하기</h1>
+</header>
+<section>
+	<!-- 글수정하기 폼 -->
+	<h2 sec:authorize = "hasRole('USER')" style = "color: red; text-align: center;">
+		관리자 아이디로 로그인 해주세요.
+	</h2>
+	<form action = "updateBook" method = "POST" sec:authorize = "hasRole('ADMIN')" onsubmit = "return checkValues();">
+	<div>
+		<table>
+			<tr>
+				<th>도서명</th>
+				<td>
+					<input class = "inputText" type = "text" name = "bookName" id = "bookName" th:value = "${book.bookName}">
+				</td>
+			</tr>
+			<tr>
+				<th>작가</th>
+				<td>
+					<input class = "inputText" type = "text" name = "bookWriter" id = "bookWriter" th:value = "${book.bookWriter}">
+				</td>
+			</tr>
+			<tr>
+				<th>출판사</th>
+				<td>
+					<input class = "inputText" type = "text" name = "publisher" id = "publisher" th:value = "${book.publisher}">
+				</td>		
+			</tr>
+			<tr>
+				<th>장르</th>
+				<td>
+					<select class = "inputText" id = "genre" name = "genre" onchange = "changeGenre(this);" style = "width:515px;">
+						<option value = "액션" th:selected = "${book.genre == '액션'}">액션</option>
+						<option value = "판타지" th:selected = "${book.genre == '판타지'}">판타지</option>
+						<option value = "로맨스" th:selected = "${book.genre == '로맨스'}">로맨스</option>
+						<option value = "소년만화" th:selected = "${book.genre == '소년만화'}">소년만화</option>
+						<option value = "개그" th:selected = "${book.genre == '개그'}">개그</option>
+						<option value = "기타" th:selected = "${book.genre == '기타'}">기타</option>
+					</select>
+				</td>		
+			</tr>	
+			<tr>
+				<th>도서위치</th>
+				<td>
+					<input class = "inputText" type = "text" name = "bookLocation" id = "bookLocation" th:value = "${book.bookLocation}">
+				</td>		
+			</tr>
+		</table>
+		</div>
+		<div align = "center">
+			<input class = "w-btn-outline w-btn-yellow-outline" type = "submit" value = "수정하기">
+		</div>
+		<input type = "hidden" name = "bookNum" th:value = "${book.bookNum}">
+	</form>
+</section>
+<script>
+	function checkValues() {
+		let bookName = document.getElementById('bookName');
+		let bookWriter = document.getElementById('bookWriter');
+		let publisher = document.getElementById('publisher');
+		let genre = document.getElementById('genre');
+		let bookLocation = document.getElementById('bookLocation');
+		
+		if(bookName.value.trim().length == 0){
+			alert('도서명은 필수항목입니다.');
+			bookName.focus();
+			return false;
+		} else if (bookWriter.value.trim() == 0){
+			alert('저자명은 필수항목입니다.');
+			bookWriter.focus();
+			return false;
+		} else if (publisher.value.trim() == 0) {
+			alert('출판사는 필수항목입니다.');
+			publisher.focus();
+			return false;
+		} else if (genre.value.trim() == 0) {
+			alert('장르는 필수항목입니다.');
+			genre.focus();
+			return false;
+		} else if (bookLocation.value.trim() == 0){
+			alert('책위치는 필수항목입니다.');
+			bookLocation.focus();
+			return false;
+		}
+	}
+</script>
+</body>
+</html>

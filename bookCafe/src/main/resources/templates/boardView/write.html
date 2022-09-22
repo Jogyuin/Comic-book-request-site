@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>[추천글 쓰기]</title>
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap');
+	
+ 	h1 {
+ 		text-align: center;
+ 		font-family: 'Black Han Sans', sans-serif;
+		font-size: 80px;
+		font-weight: 100;
+ 	}
+ 	
+ 	table {
+ 		border: 1px solid collapse;
+ 		margin-left:auto; 
+    	margin-right:auto;
+    	border-collapse: collapse;
+ 	}
+ 	
+ 	th, td {
+    	padding: 10px;
+     	border-bottom: 1px solid #CD5C5C;
+	}
+	
+	tr:hover { 
+		background-color: #F5F5F5; 
+	}
+ 	
+ 	.returnMain {
+		border: 2px solid #fce205;
+		padding: 2px 10px;
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+	}
+	
+	div {
+		margin: 20px;
+	}
+	
+	.w-btn-outline {
+   		position: relative;
+   		padding: 10px 20px;
+   		border-radius: 15px;
+   	 	font-family: "paybooc-Light", sans-serif;
+    	text-decoration: none;
+    	font-weight: 600;
+    	transition: 0.25s;
+    	font-size: 15px;
+	}
+	
+	.w-btn-yellow-outline {
+   		border: 3px solid #fce205;
+   		color: #6e6e6e;
+	}
+	
+	.w-btn-yellow-outline:hover {
+    	background-color: #fce205;
+    	color: #6e6e6e;
+	}
+	
+	.w-btn-outline:hover {
+    	letter-spacing: 2px;
+   		transform: scale(1.2);
+    	cursor: pointer;
+	}
+	
+	.w-btn-outline:active {
+    	transform: scale(1.5);
+	}
+	
+	.btn {
+  		position: relative;
+  		border: 0;
+  		padding: 10px 20px;
+  		display: inline-block;
+  		text-align: center;
+  		font-weight: 500;
+  		color: white;
+	}
+	.btn:active {
+  		top: 4px; 
+	}
+
+	.btn.yellow {
+		box-shadow:0px 4px 0px #630700;
+	}
+	
+	.btn.yellow:active {
+		box-shadow: 0 0 #ff4c4b; background-color: #630700;
+	}
+
+	.btn.yellow, .btn-two.yellow {
+		background-color: #a30e03;
+	}
+
+
+</style>
+<script>
+	function checkValues(){
+		let	bookName = document.getElementById('bookName');
+		let bookWriter = document.getElementById('bookWriter');
+		let title = document.getElementById('title');
+		let content = document.getElementById('content');
+		
+		if(bookName.value.length == 0){
+			alert("책 이름이 비어있습니다");
+			bookName.focus();
+			return false; // 서버로 값 넘기는(action) 막음
+		} else if(bookWriter.value.length == 0){
+			alert("작가가 비어있습니다");
+			bookWriter.focus();
+			return false; // 서버로 값 넘기는(action) 막음
+		} else if(title.value.length == 0){
+			alert("제목이 비어있습니다");
+			title.focus();
+			return false; // 서버로 값 넘기는(action) 막음
+		} else if(content.value.length == 0){
+			alert("내용이 비어있습니다");
+			content.focus();
+			return false;
+		}
+		
+		return true;
+	}
+</script>
+</head>
+<body>
+<header>
+	<h1>&#128221; 글쓰기</h1>
+</header>
+<section>
+	<!-- 글쓰기용 폼 -->
+	<form action = "write" method = "POST" onsubmit = "return checkValues();" enctype = "multipart/form-data">
+		<table>
+			<tr>
+				<th>책 제목</th>
+				<td>
+					<input type = "text" name = "bookName" id = "bookName" style="width:220px;height:20px;">
+				</td>
+				<th>작가</th>
+				<td>
+					<input type = "text" name = "bookWriter" id = "bookWriter" style="width:220px;height:20px;">
+				</td>
+			</tr>
+			<tr>
+				<th>제목</th>
+				<td colspan = "3">
+					<input type = "text" name = "title" id = "title" style="width:500px;height:20px;">
+				</td>
+			</tr>
+			<tr>
+				<th>내용</th>
+				<td colspan = "3">
+					<textarea id = "content" name = "content" style="width:500px;height:400px;"></textarea>
+				</td>
+			</tr>
+			<tr>
+				<th>첨부파일</th>
+				<td colspan = "3">
+					<input type = "file" name = "file">
+				</td>
+			</tr>
+			<tr>
+				<th colspan = "4">
+					<input class="btn yellow mini" type = "submit" value = "글쓰기">
+				</th>
+			</tr>
+		</table>
+	</form>
+</section>
+</body>
+</html>

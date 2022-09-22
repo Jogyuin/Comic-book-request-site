@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+	width: 100%;
+	margin: 0 auto;
+	max-width: 1350px;
+	font-family: 'Oswald', sans-serif;
+	background-image:
+		url("https://10mag.com/wp-content/uploads/2010/10/english-books-in-korea-1155x770.jpg");
+}
+
+.loginForm {
+	position: absolute;
+	width: 380px;
+	height: 350px;
+	padding: 30px, 20px;
+	background-color: #ebebeb;
+	text-align: center;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 15px;
+}
+
+.loginForm h2 {
+	text-align: center;
+	margin: 30px;
+}
+
+.idForm {
+	border-bottom: 2px solid #adadad;
+	margin: 30px;
+	padding: 10px 10px;
+}
+
+.passForm {
+	border-bottom: 2px solid #adadad;
+	margin: 30px;
+	padding: 10px 10px;
+}
+
+.id {
+	width: 100%;
+	border: none;
+	outline: none;
+	color: #636e72;
+	font-size: 16px;
+	height: 25px;
+	background: none;
+}
+
+.pw {
+	width: 100%;
+	border: none;
+	outline: none;
+	color: #636e72;
+	font-size: 16px;
+	height: 25px;
+	background: none;
+}
+
+.btn {
+	position: relative;
+	left: 40%;
+	transform: translateX(-50%);
+	margin-bottom: 40px;
+	width: 80%;
+	height: 40px;
+	background: linear-gradient(125deg, #81ecec, #6c5ce7, #81ecec);
+	background-position: left;
+	background-size: 200%;
+	color: white;
+	font-weight: bold;
+	border: none;
+	cursor: pointer;
+	transition: 0.4s;
+	display: inline;
+}
+
+.btn:hover {
+	background-position: right;
+}
+
+.form .message {
+	margin: 15px 0 0;
+	color: #b3b3b3;
+	font-size: 12px;
+}
+
+.form .message a {
+	color: #4CAF50;
+	text-decoration: none;
+}
+</style>
+<meta charset="UTF-8">
+<title>[로그인]</title>
+<script src="https://code.jquery.com/jquery-3.6.0.js"
+	integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+	crossorigin="anonymous"></script>
+<script>
+	function checkLogin() {
+		let memberId = $("#memberId").val();
+		let memberPw = $("#memberPw").val();
+		$.ajax({
+			url : "checkLogin",
+			type : "get",
+			data : {
+				"memberId" : memberId,
+				"memberPw" : memberPw
+			},
+			success : function(data) {
+				if (data == false) {
+					alert("아이디 또는 비밀번호를 잘못입력하셨습니다");
+					return false;
+				} else
+					document.getElementById("loginForm").submit();
+			}
+		});
+	}
+
+	function checkSpacebarAndEnter() {
+		let keyCode = event.keyCode;
+		
+		if (keyCode == 32) {
+			return false;
+		} else if (keyCode == 13) {
+			document.getElementById("btn").click();
+		}
+	}
+	
+	function checkValues() {
+		let memberId = document.getElementById('memberId');
+		
+		if (memberId.value.trim().length == 0) {
+			alert('아이디는 필수 항목입니다.');
+			memberId.focus();
+			return false;
+		} else if (memberId.value.trim().length < 3
+				|| memberId.value.trim().length > 12) {
+			alert('아이디는 3~12자로 입력해주세요');
+			memberId.focus();
+			return false;
+		}
+		
+		//비밀번호 체크
+		let memberPw = document.getElementById('memberPw');
+		
+		if (memberPw.value.trim().length == 0) {
+			alert('비밀번호는 필수 항목입니다.');
+			memberPw.focus();
+			return false;
+		} else if (memberPw.value.trim().length < 7
+				|| memberPw.value.trim().length > 14) {
+			alert('비밀번호는 7~14자 사이로 입력해주세요');
+			memberPw.focus();
+			return false;
+		} else if (memberPw.value.search(/[0-9]/g) < 0
+				|| memberPw.value.search(/[a-z]/ig) < 0) {
+			alert('비밀번호는 숫자와 영문자를 같이 사용하셔야 합니다.');
+			memberPw.focus();
+			return false;
+		}
+		checkLogin();
+	}
+</script>
+</head>
+<body>
+	<form action="login" method="Post" class="loginForm" id="loginForm"
+		onkeydown="return checkSpacebarAndEnter();">
+		<div class="idForm">
+			<input type="text" id="memberId" class="id" name="memberId"
+				placeholder="memberID"><br>
+		</div>
+		<div class="passForm">
+			<input type="password" id="memberPw" class="pw" name="memberPw"
+				placeholder="memberPassword"><br>
+		</div>
+		<input type="button" class="btn" value="LOGIN" id = "btn"
+			onclick="return checkValues();">
+		<p class="message">
+			Not registered? <a href="join">Create an account</a>
+		</p>
+	</form>
+</body>
+</html>

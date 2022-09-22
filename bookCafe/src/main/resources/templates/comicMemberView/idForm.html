@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<style>
+.button {
+  position: relative;
+  width: 80px;
+  height:25px;
+  margin: auto 0;
+  border-radius: 3px;
+  background:#6c5ce7;
+  color:white;
+  font-weight: bold;
+  border:none;
+  cursor:pointer;
+  transition: 0.4s;
+  display: inline-block;
+}
+
+</style>
+<meta charset="UTF-8">
+<title>[ID중복체크]</title>
+</head>
+<body>
+<header>
+	<h1>[ID 중복체크]</h1>
+</header>
+
+<section>
+<form action = "idCheck" method= "POST">
+	<table>
+		<tr>
+			<th>ID</th>
+			<td class="textForm">
+			<input type = "text" class = "id" name = "searchId"  placeholder ="아이디를 입력하세요">
+			<input type = "submit" class= "button" value = "검색" >
+			</td>
+		</tr>
+	</table>
+</form>
+
+<!-- ID 중복 체크 결과를 표시하는 곳 -->
+<div th:if ="${searchId != null}"><!-- 검색이 한번이라도 했을때 -->
+	<div th:if = "${result}"> <!-- result == true -->
+		<p>
+			<span th:text = "${searchId}"></span>는 사용가능한 ID입니다.
+		</p>
+		<p>
+			<input type = "button" value = "ID 사용하기" th:searchId = "${searchId}" th:onclick = "insertId(this.getAttribute('searchId'));">
+		</p>
+	</div>
+	<div th:unless = "${result}">
+		<p>
+			<span th:text = "${searchId}"></span>는 사용중인 ID입니다.
+		</p>
+	</div>
+</div>
+</section>
+<script>
+	function insertId(id){
+		//opener 새창을 띄운 부모 윈도우
+		opener.document.getElementById('memberId').value = id;
+		this.close();//창 닫기
+	}
+</script>
+</body>
+</html>
